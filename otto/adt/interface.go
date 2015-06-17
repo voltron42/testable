@@ -4,26 +4,10 @@ import "github.com/robertkrimen/otto"
 
 var ErrVersion = otto.ErrVersion
 
-type Error interface {
-	Error() string
-	String() string
-}
-type FunctionCall interface {
-	This() Value
-	Argument(index int) Value
-	ArgumentList() []Value
-	Otto() *Otto
-}
-type Object interface {
-	Call(name string, argumentList ...interface{}) (Value, error)
-	Class() string
-	Get(name string) (Value, error)
-	Keys() []string
-	Set(name string, value interface{}) error
-	Value() Value
-}
+type Function func(call otto.FunctionCall) otto.Value
+
 type Factory interface {
-	New() *Otto
+	New() Otto
 	Run(src interface{}) (*Otto, Value, error)
 	FalseValue() Value
 	NaNValue() Value
@@ -35,10 +19,10 @@ type Factory interface {
 type Otto interface {
 	Interupt() chan func()
 	Call(source string, this interface{}, argumentList ...interface{}) (Value, error)
-	Compile(filename string, src interface{}) (*Script, error)
+	Compile(filename string, src interface{}) (Script, error)
 	Copy() *Otto
 	Get(name string) (Value, error)
-	Object(source string) (*Object, error)
+	Object(source string) (Object, error)
 	Run(src interface{}) (Value, error)
 	Set(name string, value interface{}) error
 	ToValue(value interface{}) (Value, error)
@@ -60,10 +44,24 @@ type Value interface {
 	IsPrimitive() bool
 	IsString() bool
 	IsUndefined() bool
-	Object() *Object
+	Object() Object
 	String() string
 	ToBoolean() (bool, error)
 	ToFloat() (float64, error)
 	ToInteger() (int64, error)
 	ToString() (string, error)
+}
+type Object interface {
+	Call(name string, argumentList ...interface{}) (Value, error)
+	Class() string
+	Get(name string) (Value, error)
+	Keys() []string
+	Set(name string, value interface{}) error
+	Value() Value
+}
+type FunctionCall interface {
+	This() Value
+	Argument(index int) Value
+	ArgumentList() []Value
+	Otto() *Otto
 }
